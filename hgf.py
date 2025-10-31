@@ -23,8 +23,7 @@ class HGF:
         self.s3 = 1.0  # $\sigma_{3}^{(n)}$, n = 0, ..., k - 1
 
         self.m1_hat_prev = 0
-
-        self.counter = 0
+        self._counter = 0
 
         self.history = {"m1": [], "m2": [], "m3": [], "s2": [], "s3": [], "u": []}
 
@@ -115,7 +114,7 @@ class HGF:
         self.history["s2"].append(self.s2)
         self.history["s3"].append(self.s3)
 
-        self.counter += 1
+        self._counter += 1
 
     def run_simulation(self, inputs):
         for u in inputs:
@@ -126,11 +125,46 @@ class HGF:
         fig, axes = plt.subplots(3, 1, figsize=(12, 10))
         trials = np.arange(len(self.history["u"]))
 
-        # Level 1: Inputs and belief
+        # Level 3: Log-volatility
         ax = axes[0]
+        ax.plot(trials, self.history["m3"], "b-", linewidth=2, label="Posterior E[x3] = m3")
+        s3_array = np.array(self.history["s3"])
+        s3_array[s3_array < 0] = 0
+        m3_array = np.array(self.history["m3"])
+        ax.fill_between(
+            trials,
+            m3_array - np.sqrt(s3_array),
+            m3_array + np.sqrt(s3_array),
+            alpha=0.2,
+            color="blue",
+        )
+        ax.set_ylabel("Level 3: x3 (log-volatility)")
+        ax.set_xlabel("Trial")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+
+        # Level 2: Tendency
+        ax = axes[1]
+        ax.plot(trials, self.history["m2"], "r-", linewidth=2, label="Posterior E[x2] = m2")
+        s2_array = np.array(self.history["s2"])
+        m2_array = np.array(self.history["m2"])
+        ax.fill_between(
+            trials,
+            m2_array - np.sqrt(s2_array),
+            m2_array + np.sqrt(s2_array),
+            alpha=0.2,
+            color="red",
+        )
+        ax.set_ylabel("Level 2: x2 (tendency)")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
+
+        # Level 1: Inputs and belief
+        ax = axes[2]
         ax.scatter(trials, self.history["u"], c="green", s=10, label="Input u", alpha=0.6)
-        m1_prob = [sigmoid(m2) for m2 in self.history["m2"]]
-        # m1_prob = self.history["m1"]
+
+        m1_prob = [np.clip(sigmoid(m2), 1e-10, 1 - 1e-10) for m2 in self.history["m2"]]
+
         ax.plot(trials, m1_prob, "r-", linewidth=2, label="Posterior E[x1=1] = s(m2)")
         if true_prob is not None:
             ax.plot(trials, true_prob, "k-", linewidth=1, label="True p(x1=1)")
@@ -138,40 +172,6 @@ class HGF:
         ax.set_ylim(-0.1, 1.1)
         ax.legend()
         ax.grid(True, alpha=0.3)
-
-        # # Level 2: Tendency
-        # ax = axes[1]
-        # ax.plot(trials, self.history["m2"], "r-", linewidth=2, label="Posterior E[x2] = m2")
-        # s2_array = np.array(self.history["s2"])
-        # m2_array = np.array(self.history["m2"])
-        # ax.fill_between(
-        #     trials,
-        #     m2_array - np.sqrt(s2_array),
-        #     m2_array + np.sqrt(s2_array),
-        #     alpha=0.2,
-        #     color="red",
-        # )
-        # ax.set_ylabel("Level 2: x2 (tendency)")
-        # ax.legend()
-        # ax.grid(True, alpha=0.3)
-
-        # # Level 3: Log-volatility
-        # ax = axes[2]
-        # ax.plot(trials, self.history["m3"], "b-", linewidth=2, label="Posterior E[x3] = m3")
-        # s3_array = np.array(self.history["s3"])
-        # s3_array[s3_array < 0] = 0
-        # m3_array = np.array(self.history["m3"])
-        # ax.fill_between(
-        #     trials,
-        #     m3_array - np.sqrt(s3_array),
-        #     m3_array + np.sqrt(s3_array),
-        #     alpha=0.2,
-        #     color="blue",
-        # )
-        # ax.set_ylabel("Level 3: x3 (log-volatility)")
-        # ax.set_xlabel("Trial")
-        # ax.legend()
-        # ax.grid(True, alpha=0.3)
 
         plt.tight_layout()
         return fig
@@ -221,3 +221,4 @@ if __name__ == "__main__":
     fig = hgf.plot_results(true_prob=true_prob)
     plt.savefig("hgf_reference_scenario.png", dpi=150, bbox_inches="tight")
     plt.show()
+    sum = 41

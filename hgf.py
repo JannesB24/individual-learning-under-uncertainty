@@ -139,39 +139,39 @@ class HGF:
         ax.legend()
         ax.grid(True, alpha=0.3)
 
-        # # Level 2: Tendency
-        # ax = axes[1]
-        # ax.plot(trials, self.history["m2"], "r-", linewidth=2, label="Posterior E[x2] = m2")
-        # s2_array = np.array(self.history["s2"])
-        # m2_array = np.array(self.history["m2"])
-        # ax.fill_between(
-        #     trials,
-        #     m2_array - np.sqrt(s2_array),
-        #     m2_array + np.sqrt(s2_array),
-        #     alpha=0.2,
-        #     color="red",
-        # )
-        # ax.set_ylabel("Level 2: x2 (tendency)")
-        # ax.legend()
-        # ax.grid(True, alpha=0.3)
+        # Level 2: Tendency
+        ax = axes[1]
+        ax.plot(trials, self.history["m2"], "r-", linewidth=2, label="Posterior E[x2] = m2")
+        s2_array = np.array(self.history["s2"])
+        m2_array = np.array(self.history["m2"])
+        ax.fill_between(
+            trials,
+            m2_array - np.sqrt(s2_array),
+            m2_array + np.sqrt(s2_array),
+            alpha=0.2,
+            color="red",
+        )
+        ax.set_ylabel("Level 2: x2 (tendency)")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
 
-        # # Level 3: Log-volatility
-        # ax = axes[2]
-        # ax.plot(trials, self.history["m3"], "b-", linewidth=2, label="Posterior E[x3] = m3")
-        # s3_array = np.array(self.history["s3"])
-        # s3_array[s3_array < 0] = 0
-        # m3_array = np.array(self.history["m3"])
-        # ax.fill_between(
-        #     trials,
-        #     m3_array - np.sqrt(s3_array),
-        #     m3_array + np.sqrt(s3_array),
-        #     alpha=0.2,
-        #     color="blue",
-        # )
-        # ax.set_ylabel("Level 3: x3 (log-volatility)")
-        # ax.set_xlabel("Trial")
-        # ax.legend()
-        # ax.grid(True, alpha=0.3)
+        # Level 3: Log-volatility
+        ax = axes[2]
+        ax.plot(trials, self.history["m3"], "b-", linewidth=2, label="Posterior E[x3] = m3")
+        s3_array = np.array(self.history["s3"])
+        s3_array[s3_array < 0] = 0
+        m3_array = np.array(self.history["m3"])
+        ax.fill_between(
+            trials,
+            m3_array - np.sqrt(s3_array),
+            m3_array + np.sqrt(s3_array),
+            alpha=0.2,
+            color="blue",
+        )
+        ax.set_ylabel("Level 3: x3 (log-volatility)")
+        ax.set_xlabel("Trial")
+        ax.legend()
+        ax.grid(True, alpha=0.3)
 
         plt.tight_layout()
         return fig
